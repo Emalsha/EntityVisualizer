@@ -5,10 +5,13 @@
   "dependencies": {
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
-    "react-scripts": "2.1.5"
+    "react-gojs": "^3.0.0",
+    "react-scripts": "2.1.5",
+    "react-xml-parser": "^1.1.2",
+    "xml-js": "^1.6.11"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=4200 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
