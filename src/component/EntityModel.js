@@ -2,15 +2,11 @@ import React, { Component } from 'react';
 import convert from 'xml-js';
 import { GojsDiagram } from 'react-gojs';
 import go from 'gojs';
-
-const credential = {
-    username:"dl",
-    password:'CNC2017!'
-}
+import credential from './config';
 
 function uniq(a) {
     return a.sort(compare).filter(function(item, pos, ary) {
-        return !pos || item.to != ary[pos - 1].to;
+        return !pos || item.to !== ary[pos - 1].to;
     })
 }
 
@@ -77,7 +73,7 @@ class EntityModel extends Component{
         .then(schema=> convert.xml2json(schema,{compact:false,spaces:4}))
         .then(d => JSON.parse(d))
         .then(json => json.elements[0].elements[0].elements[0].elements.filter(data => data.name === "EntityType"))
-        .then(asad => { console.log(asad); return asad; })
+        .then(asad => { console.log(asad); return asad; }) //TODO : TEMP
         .then(Emodel => {
             Emodel.map( d => {
                 newEle.push({ key: d.attributes.Name, color: 'lightblue' });
@@ -94,7 +90,6 @@ class EntityModel extends Component{
         .then( model => { console.log(model); this.setState( { model }); }  );
     }
 
-        // .then(json => console.log(json));
     render(){
 
         return(
