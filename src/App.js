@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import EntityModel from './component/EntityModel';
+import { CREDENTIAL } from './component/config';
+import convert from 'xml-js';
 
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
@@ -28,6 +30,20 @@ const theme = createMuiTheme({
   },
 });
 
+function uniq(a) {
+  return a.sort(compare).filter(function(item, pos, ary) {
+      return !pos || item.to !== ary[pos - 1].to;
+  })
+}
+
+function compare(a,b) {
+  if (a.from < b.from)
+    return -1;
+  if (a.from > b.from)
+    return 1;
+  return 0;
+}
+
 class App extends Component {
 
   constructor(props){
@@ -38,8 +54,51 @@ class App extends Component {
       anchorEl: null,
       entityList: [],
       searchResult: null,
+      model : {
+        nodeDataArray: [],
+        linkDataArray: []
+      },
+      searchModel: {
+        nodeDataArray: [],
+        linkDataArray: []
+      },
     }
   }
+
+  componentDidMount(){
+    const newEle = [];
+    const newRel = [];
+    const newLis = [];
+    fetch("http://sdlntcorp02:88/Corporate/CampusNetCorporate.svc/$metadata",{
+        method:'GET',
+        credentials:'include',
+        headers: new Headers({
+            'Content-Type':'application/x-www-form-urlencoded',
+        }),
+        Authorization: CREDENTIAL.username + ':' + CREDENTIAL.password,
+    })
+    .then(response => response.text())
+    .then(schema=> convert.xml2json(schema,{compact:false,spaces:4}))
+    .then(d => JSON.parse(d))
+    .then(json => json.elements[0].elements[0].elements[0].elements.filter(data => data.name === "EntityType"))
+    .then(asad => { console.log(asad); return asad; }) //TODO : TEMP
+    .then(Emodel => {
+        Emodel.map( d => {
+            newEle.push({ key: d.attributes.Name, color: 'lightblue' });
+            newLis.push( d.attributes.Name );
+            d.elements.filter( e => e.name === "NavigationProperty" ).map(m => {
+                let obj = {
+                    from: m.attributes.Relationship.split('.')[1].split('_')[0],
+                    to: m.attributes.Relationship.split('.')[1].split('_')[1]
+                };
+                newRel.push(obj);
+            });
+        });
+        this.setState( { entityList : newLis } );
+        return { 'nodeDataArray' : newEle, 'linkDataArray' : uniq(newRel)};
+    })
+    .then( model => this.setState( { model }) );
+}
 
   handleClick = event => {
     this.setState({
@@ -57,11 +116,19 @@ class App extends Component {
   }
 
   searchOnClick = (entity) => {
-    console.log(entity);
     this.setState({
       anchorEl: null,
       search:entity
     });
+    this.fileterModel(entity);
+  }
+
+  fileterModel(entity){
+    const tempNode = this.state.model.nodeDataArray.filter((e)=>e.key === entity);
+    const tempRela = this.state.model.linkDataArray.filter((e)=>e.from === entity);
+    tempRela.map((m)=> tempNode.push({ key: m.to , color: 'lightblue' }))
+    this.setState( { searchModel : { nodeDataArray : tempNode , linkDataArray: tempRela}});
+    console.log(tempNode);
   }
 
   render() {
@@ -130,7 +197,10 @@ class App extends Component {
         <main>
           <div className={classes.heroUnit}>
             <div className={classes.heroContent}>
-              <EntityModel search={this.state.search} addEntityList={(val) => this.setState({ entityList: val })} />
+              <EntityModel
+                model={this.state.searchModel}
+                search={this.state.search}
+              />
             </div>
           </div>
         </main>
@@ -238,6 +308,7 @@ const styles = theme => ({
   },
   popper:{
     top: '60px !important',
+    zIndex: 2,
   },
 
 });
