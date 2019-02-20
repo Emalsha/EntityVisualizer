@@ -26,17 +26,11 @@ class EntityModel extends Component{
         this.state = {
             model : {
                 nodeDataArray: [
-                    { key: 'Alpha', color: 'lightblue' },
-                    { key: 'Beta', color: 'orange' },
-                    { key: 'Gamma', color: 'lightgreen' },
-                    { key: 'Delta', color: 'pink' },
-                    { key: 'Omega', color: 'grey' }
+                    { key: 'A', color: 'lightblue' },
+                    { key: 'B', color: 'orange' }
                 ],
                 linkDataArray: [
-                    { from: 'Alpha', to: 'Beta' },
-                    { from: 'Alpha', to: 'Gamma' },
-                    { from: 'Beta', to: 'Delta' },
-                    { from: 'Gamma', to: 'Omega' }
+                    { from: 'A', to: 'B' },
                 ]
             },
         }
