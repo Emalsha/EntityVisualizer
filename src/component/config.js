@@ -1,4 +1,4 @@
-export const credential = {
-    username:"###",
-    password:'###'
+export const CREDENTIAL = {
+    username:"dl",
+    password:'CNC2017!'
 }
